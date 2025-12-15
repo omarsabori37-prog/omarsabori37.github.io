@@ -124,30 +124,46 @@ body{
 </div>
 
 <script>
-const API_ENDPOINT = "https://YOUR_BACKEND_API/download";
+async function go() {
+  const input = document.getElementById("ig");
+  const st = document.getElementById("st");
+  const url = input.value.trim();
 
-async function go(){
-  const u = document.getElementById('ig').value.trim();
-  const st = document.getElementById('st');
-  if(!u){ st.innerText='❌ لینک را وارد کن'; return; }
-  st.innerText='⏳ در حال پردازش...';
-  try{
-    const r = await fetch(API_ENDPOINT,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({url:u})
-    });
-    const d = await r.json();
-    if(d.download_url){
-      window.location.href = d.download_url;
-      st.innerText='✅ دانلود شروع شد';
-    }else{
-      st.innerText='❌ ویدیو پیدا نشد';
-    }
-  }catch(e){
-    st.innerText='❌ خطای اتصال';
+  if (!url) {
+    st.innerText = "❌ لینک را وارد کن";
+    return;
   }
-}
+
+  st.innerText = "⏳ در حال پردازش...";
+
+  const api =
+    "https://hidden-dew-cadd.omarsabori37.workers.dev/?url=" +
+    encodeURIComponent(url);
+
+  try {
+    const res = await fetch(api);
+    const data = await res.json();
+
+    if (!data.success) {
+      st.innerText = "❌ دانلود ممکن نشد";
+      return;
+    }
+
+    st.innerText = "✅ دانلود شروع شد";
+
+    // دانلود مستقیم در همین صفحه
+    const a = document.createElement("a");
+    a.href = data.download;
+    a.download = "";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+  } catch (e) {
+    st.innerText = "❌ خطا در اتصال";
+  }
+  }
 </script>
 </body>
 </html>
+
